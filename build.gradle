@@ -1,0 +1,69 @@
+plugins {
+    id 'java-library'
+    id 'maven'
+    id "maven-publish"
+    id 'com.jfrog.bintray' version '1.8.4'
+    id 'com.github.ben-manes.versions' version '0.21.0'
+}
+
+group = 'pw.aru.libs'
+version = '1.0'
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+javadoc {
+    failOnError = false
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    options.author()
+    options.encoding = 'UTF-8'
+    options.addStringOption('-html5')
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+publishing {
+    publications {
+        BintrayRelease(MavenPublication) {
+            from components.java
+            groupId project.group.toString()
+            artifactId project.name.toString()
+            version project.version.toString()
+            artifact javadocJar
+            artifact sourcesJar
+        }
+    }
+}
+
+bintray {
+    if (project.hasProperty("bintrayUsername") && project.hasProperty("bintrayApiKey")) {
+        user = bintrayUsername
+        key = bintrayApiKey
+    }
+    publications = ['BintrayRelease']
+    pkg {
+        repo = 'maven'
+        name = project.name.toString()
+        userOrg = 'arudiscord'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/arudiscord/processmonitor.git'
+        publish = true
+        version {
+            name = project.version
+        }
+    }
+}
+
+bintrayUpload {
+    dependsOn build
+    dependsOn publishToMavenLocal
+}
