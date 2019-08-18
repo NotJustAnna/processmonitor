@@ -15,6 +15,7 @@ public class ProcessSnapshot {
     private final long systemFreeMemory;
     private final long systemMaxMemory;
     private final long systemUsedMemory;
+    private final long usedMemory;
     private long timeMillis;
 
     public ProcessSnapshot(long timeMillis,
@@ -25,6 +26,7 @@ public class ProcessSnapshot {
         this.cpuUsage = cpuUsage;
         this.freeMemory = freeMemory;
         this.maxMemory = maxMemory;
+        this.usedMemory = allocatedMemory - freeMemory;
         this.threadCount = threadCount;
         this.allocatedMemory = allocatedMemory;
         this.systemCpuUsage = systemCpuUsage;
@@ -57,6 +59,10 @@ public class ProcessSnapshot {
         return freeMemory;
     }
 
+    public long usedMemory() {
+        return usedMemory;
+    }
+
     public long allocatedMemory() {
         return allocatedMemory;
     }
@@ -79,6 +85,10 @@ public class ProcessSnapshot {
 
     public double freeMemory(MemoryUnit unit) {
         return MemoryUnit.BYTES.convertTo(((double) freeMemory), unit);
+    }
+
+    public double usedMemory(MemoryUnit unit) {
+        return MemoryUnit.BYTES.convertTo(((double) usedMemory), unit);
     }
 
     public double allocatedMemory(MemoryUnit unit) {
